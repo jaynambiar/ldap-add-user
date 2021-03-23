@@ -25,7 +25,7 @@ echo "User exists"
 exit 0
 fi
 
-echo "dn: uid=$user,ou=noc,dc=primenet,dc=in
+echo "dn: uid=$user,ou=noc,dc=abc,dc=in
 uid: $user
 cn: $firstname $lastname
 objectClass: tacacsAccount
