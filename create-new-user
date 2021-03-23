@@ -1,0 +1,46 @@
+echo "Enter First Name"
+read firstname
+echo "Enter Last Name"
+read lastname
+echo "Enter Required Login name"
+read user
+echo "Enter Password"
+read pass
+
+echo "[1] Admin (read/write)"
+echo "[2] Helpdesk (read only)"
+echo -n "Choose Access Level :"
+read group
+
+case $group in
+ 1) group=admin;;
+ 2) group=helpdesk;;
+esac
+
+status=`ldapsearch -x -b "ou=noc,dc=abc,dc=in" uid=$user | grep dn: `
+
+if [[ ! -z $status ]];
+then 
+echo "User exists"
+exit 0
+fi
+
+echo "dn: uid=$user,ou=noc,dc=primenet,dc=in
+uid: $user
+cn: $firstname $lastname
+objectClass: tacacsAccount
+objectClass: inetOrgPerson
+sn: $lastname
+userPassword: $pass
+tacacsClient: 0.0.0.0/0
+tacacsMember: $group
+tacacsProfile: { valid until = 2100-01-01 }" > /tmp/ldap.$$
+
+
+cat /tmp/ldap.$$
+
+ldapadd -x -D "cn=Manager,dc=abc,dc=in" -w abc321 -f /tmp/ldap.$$
+
+
+rm -f  /tmp/ldap.$$
+
